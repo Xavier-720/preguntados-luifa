@@ -1,0 +1,60 @@
+name: preguntados-luifa
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: preguntados-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-preguntados}
+      POSTGRES_USER: ${POSTGRES_USER:-preguntados}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-preguntados}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-preguntados} -d ${POSTGRES_DB:-preguntados}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: preguntados-api
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      PORT: 8080
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-preguntados}
+      DB_USER: ${POSTGRES_USER:-preguntados}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-preguntados}
+      ADMIN_PIN: ${ADMIN_PIN:-2468}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Argentina/Buenos_Aires}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8081}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api/v1
+    container_name: preguntados-web
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8081}:80"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:preguntados}
+    username: ${DB_USER:preguntados}
+    password: ${DB_PASSWORD:preguntados}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+  h2:
+    console:
+      enabled: false

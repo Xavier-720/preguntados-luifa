@@ -1,0 +1,39 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores e IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+*.ipr
+*.iws
+
+# Backend (Maven / Spring Boot)
+backend/target/
+backend/data/
+backend/*.log
+backend/app*.log
+backend/.env
+
+# Frontend (Node / Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/*.local
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Variables de entorno locales
+.env
+.env.*
+!.env.example
+
+# Artefactos temporales
+*.tmp
+*.bak
+*.orig
+*.rej
