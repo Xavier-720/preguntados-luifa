@@ -91,9 +91,9 @@ export function ResultScreen() {
 
       {error ? <ErrorBanner message={error} onDismiss={clearError} className="max-w-md" /> : null}
 
-      <div className="flex w-full max-w-md flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+      <div className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
         {prizeAvailable ? (
-          <Button size="lg" onClick={startPrize} className="sm:flex-1">
+          <Button size="lg" onClick={startPrize} className="whitespace-nowrap sm:flex-1">
             Sortear premio
           </Button>
         ) : null}
@@ -101,7 +101,7 @@ export function ResultScreen() {
           size="lg"
           variant={prizeAvailable ? 'secondary' : 'primary'}
           onClick={reset}
-          className="sm:flex-1"
+          className="whitespace-nowrap sm:flex-1"
         >
           Jugar de nuevo
         </Button>

@@ -11,13 +11,35 @@ Esta versión es una reescritura completa del juego original en un solo HTML, ah
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
+## Contenido
+
+- [Capturas](#capturas)
+- [Características](#características)
+- [Stack](#stack)
+- [Arquitectura](#arquitectura)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Requisitos](#requisitos)
+- [Puesta en marcha local](#puesta-en-marcha-local)
+- [Reglas y contenido](#reglas-y-contenido)
+- [API](#api)
+- [Tests](#tests)
+- [Configuración](#configuración)
+- [Docker](#docker)
+- [Uso en el local (tablet / LAN)](#uso-en-el-local-tablet--lan)
+- [Despliegue](#despliegue)
+- [Seguridad](#seguridad)
+- [Reset de datos](#reset-de-datos)
+- [Licencia](#licencia)
+
 ## Capturas
 
 | Inicio | Ruleta | Pregunta |
 | :---: | :---: | :---: |
 | ![Inicio](docs/screenshots/01-home.png) | ![Ruleta](docs/screenshots/02-wheel.png) | ![Pregunta](docs/screenshots/03-question.png) |
-| **Resultado** | **Premio** | **Administración** |
-| ![Resultado](docs/screenshots/05-result-win.png) | ![Premio](docs/screenshots/06-prize.png) | ![Administración](docs/screenshots/08-admin.png) |
+| **Respuesta** | **Resultado** | **Premio** |
+| ![Respuesta](docs/screenshots/04-answer.png) | ![Resultado](docs/screenshots/05-result-win.png) | ![Premio](docs/screenshots/06-prize.png) |
+| **Sin premio** | **Acceso admin** | **Administración** |
+| ![Sin premio](docs/screenshots/11-result-loss.png) | ![Acceso admin](docs/screenshots/07-admin-pin.png) | ![Administración](docs/screenshots/08-admin.png) |
 
 ## Características
 
@@ -58,7 +80,7 @@ Esta versión es una reescritura completa del juego original en un solo HTML, ah
                                                      └──────────────────────────┘
 ```
 
-En Docker, nginx sirve la SPA y hace de proxy de `/api` hacia el contenedor del backend, por lo que el navegador ve un solo origen.
+En Docker, nginx sirve la SPA y hace de proxy de `/api` hacia el contenedor del backend, por lo que el navegador ve un solo origen. Esto permite entrar por `localhost`, `127.0.0.1` o la IP de la tablet en la red local sin conflictos de CORS.
 
 Más detalles de diseño, modelo de datos y decisiones en **[docs/architecture.md](docs/architecture.md)**.
 
@@ -94,7 +116,7 @@ preguntados-luifa/
 
 - **JDK 25** y **Maven 3.9+**
 - **Node.js 24+** y **npm 11+**
-- **Docker** (opcional, para el despliegue con contenedores)
+- **Docker Desktop** (opcional, para el despliegue con contenedores)
 
 ## Puesta en marcha local
 
@@ -209,8 +231,10 @@ La forma más simple de levantar todo junto (PostgreSQL + API + nginx):
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose up -d --build
 ```
+
+> En Windows podés usar `Copy-Item .env.example .env`. Docker Desktop tiene que estar iniciado.
 
 - Juego: <http://localhost:8081>
 - API directa: <http://localhost:8080/api/v1>
@@ -225,6 +249,29 @@ docker compose down
 # Detener y borrar también la base de datos
 docker compose down -v
 ```
+
+El despliegue con contenedores fue **probado de punta a punta** con Docker 29.9.3, Docker Compose v5.7.0 y PostgreSQL 17.12. La verificación incluyó: arranque del stack desde una base vacía, migración Flyway y carga de las 32 preguntas, partida completa a través de nginx hasta el premio, stock descontado, sorteo idempotente, panel de administración con PIN, rechazo de PIN inválido (`401`) y reinicio de reglas/stock.
+
+## Uso en el local (tablet / LAN)
+
+Con Docker, la tablet puede jugar sin instalar nada:
+
+1. Asegurate de que la tablet y la computadora estén en la **misma red Wi-Fi**.
+2. En la computadora, obtené la IP local:
+
+   ```powershell
+   ipconfig
+   ```
+
+   Buscá la IPv4 de la interfaz Wi-Fi, por ejemplo `192.168.0.50`.
+3. En la tablet, abrí `http://192.168.0.50:8081`.
+4. Si no carga, permití el puerto **8081** en el firewall de Windows (Red privada).
+
+El panel de administración queda en `http://192.168.0.50:8081/admin`. Como nginx sirve la SPA y proxya `/api` en el mismo origen, funciona igual entrando por `localhost`, `127.0.0.1` o la IP de la LAN.
+
+| Inicio en celular | Ruleta en celular |
+| :---: | :---: |
+| ![Inicio móvil](docs/screenshots/09-home-mobile.png) | ![Ruleta móvil](docs/screenshots/10-wheel-mobile.png) |
 
 ## Despliegue
 
@@ -245,10 +292,18 @@ Recomendaciones para producción:
 - Desactivar Swagger y la consola H2 si no los necesitás (`SPRINGDOC_API_DOCS_ENABLED=false`, `SPRINGDOC_SWAGGER_UI_ENABLED=false`; el perfil `postgres` ya desactiva H2).
 - Programar backups del volumen de PostgreSQL.
 
+## Seguridad
+
+- El PIN de administración es una **barrera operativa** para una tablet detrás del mostrador, no un sistema de autenticación para exponer el panel a internet.
+- El PIN se envía en el header `X-Admin-Pin` y se guarda solo en `sessionStorage`; nunca forma parte del bundle ni de la base de datos.
+- Si el juego va a estar accesible desde internet, poné el panel detrás de HTTPS y de una capa de autenticación real (VPN, reverse proxy con basic auth, Cloudflare Access, etc.).
+- Cambiá `ADMIN_PIN` y `POSTGRES_PASSWORD` antes de publicar. No commitees el archivo `.env`.
+- La API aplica CORS solo a los orígenes configurados. En Docker, el navegador usa el mismo origen a través de nginx, así que no hace falta abrir CORS a toda la red.
+
 ## Reset de datos
 
 - **Local (H2):** detené el backend y borrá la carpeta `backend/data/`. Al reiniciar se vuelve a crear con el stock 10/10 y las 32 preguntas.
-- **Docker (PostgreSQL):** `docker compose down -v` y luego `docker compose up --build`.
+- **Docker (PostgreSQL):** `docker compose down -v` y luego `docker compose up -d --build`.
 
 ## Licencia
 

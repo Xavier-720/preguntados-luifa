@@ -1,15 +1,11 @@
 import { Link } from 'react-router-dom'
 
-interface BrandProps {
-  compact?: boolean
-}
-
-export function Brand({ compact = false }: BrandProps) {
+export function Brand() {
   return (
     <Link
       to="/"
       aria-label="Las Camisetas de Luifa, ir al inicio"
-      className="group flex items-center gap-2.5 rounded-lg"
+      className="group flex min-h-11 items-center gap-2.5 rounded-lg"
     >
       <img
         src="/logo-luifa.png"
@@ -26,7 +22,7 @@ export function Brand({ compact = false }: BrandProps) {
           Camisetas
         </span>
       </span>
-      {!compact ? <span className="sr-only">Las Camisetas de Luifa</span> : null}
+      <span className="sr-only">Las Camisetas de Luifa</span>
     </Link>
   )
 }

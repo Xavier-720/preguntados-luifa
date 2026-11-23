@@ -11,6 +11,7 @@ import type {
   UpdateSettingsRequest,
 } from './types'
 
+// En desarrollo y en Docker la API se sirve bajo el mismo origen, detrás del proxy.
 const API_BASE = (import.meta.env.VITE_API_URL ?? '/api/v1').replace(/\/$/, '')
 
 export class ApiError extends Error {

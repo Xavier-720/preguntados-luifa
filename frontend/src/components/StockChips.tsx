@@ -4,12 +4,11 @@ import { cn } from '../lib/cn'
 interface StockChipsProps {
   hats: number
   cups: number
-  className?: string
 }
 
-export function StockChips({ hats, cups, className }: StockChipsProps) {
+export function StockChips({ hats, cups }: StockChipsProps) {
   return (
-    <div className={cn('flex items-center gap-1.5 sm:gap-2', className)}>
+    <div className="flex items-center gap-1.5 sm:gap-2">
       <span
         className={cn('chip', hats === 0 && 'chip-empty')}
         aria-label={`${hats} ${hats === 1 ? 'gorra disponible' : 'gorras disponibles'}`}

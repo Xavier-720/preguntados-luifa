@@ -5,15 +5,14 @@ interface ProgressDotsProps {
   results: boolean[]
   total: number
   active?: number
-  className?: string
 }
 
-export function ProgressDots({ results, total, active, className }: ProgressDotsProps) {
+export function ProgressDots({ results, total, active }: ProgressDotsProps) {
   const correct = results.filter(Boolean).length
 
   return (
     <div
-      className={cn('flex items-center justify-center gap-2.5', className)}
+      className="flex items-center justify-center gap-2.5"
       role="img"
       aria-label={`${correct} aciertos de ${total} preguntas`}
     >

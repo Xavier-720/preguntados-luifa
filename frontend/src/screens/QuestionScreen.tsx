@@ -38,6 +38,7 @@ export function QuestionScreen() {
   }, [answer, reducedMotion])
 
   useEffect(() => {
+    // Al llegar a cero enviamos el timeout una sola vez.
     if (!round || answer || pending === 'answering' || autoSubmittedRef.current) {
       return
     }

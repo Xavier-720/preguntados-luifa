@@ -61,6 +61,7 @@ export function WheelScreen() {
     const foundIndex = categories.findIndex((category) => category.id === response.category.id)
     const index = foundIndex >= 0 ? foundIndex : 0
     const offset = 0.15 + Math.random() * 0.5
+    // El servidor ya eligió la categoría; acá solo calculamos dónde frenar la ruleta.
     const nextRotation = computeTargetRotation(
       rotationRef.current,
       index,

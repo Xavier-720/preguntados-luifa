@@ -32,6 +32,7 @@ public class SettingsService {
     public AppSettings update(int totalRounds, int requiredCorrect, int questionSeconds, int stockHats,
                               int stockCups) {
         validate(totalRounds, requiredCorrect, questionSeconds, stockHats, stockCups);
+        // Bloqueamos la fila para no pisar un sorteo que esté descontando stock.
         AppSettings settings = repository.findForUpdate().orElseThrow(this::settingsNotFound);
         settings.update(totalRounds, requiredCorrect, questionSeconds, stockHats, stockCups, Instant.now(clock));
         return settings;

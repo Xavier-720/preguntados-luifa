@@ -37,6 +37,7 @@ public class StatsService {
 
     @Transactional(readOnly = true)
     public AdminStatsResponse stats() {
+        // "Hoy" se calcula en la zona horaria del local, no en UTC.
         ZoneId zone = ZoneId.of(properties.timezone());
         Instant since = LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant();
         AppSettings settings = settingsService.get();

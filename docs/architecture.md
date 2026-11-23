@@ -35,7 +35,7 @@ flowchart LR
     Rules -- JPA + Flyway --> DB
 ```
 
-En desarrollo, Vite hace de servidor y proxya `/api` a `localhost:8080`. En Docker, nginx sirve los archivos estáticos y proxya `/api` al contenedor `backend`, de modo que el navegador trabaja siempre contra un único origen y no hay problemas de CORS.
+En desarrollo, Vite hace de servidor y proxya `/api` a `localhost:8080`. En Docker, nginx sirve los archivos estáticos y proxya `/api` al contenedor `backend`, de modo que el navegador trabaja siempre contra un único origen y no hay problemas de CORS. Además, nginx elimina el header `Origin` en las llamadas a `/api`, así que el juego funciona igual entrando por `localhost`, por `127.0.0.1` o por la IP de la tablet en la red local.
 
 ## 3. Backend
 

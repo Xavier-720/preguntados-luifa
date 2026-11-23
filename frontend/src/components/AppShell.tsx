@@ -18,7 +18,7 @@ export function AppShell({ children, stock, mode = 'game' }: AppShellProps) {
         <div className="floodlight floodlight-right" />
       </div>
 
-      <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 pb-1 pt-4 sm:px-6 sm:pt-5">
+      <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 pb-1 pt-4 sm:px-6 sm:pt-5">
         <Brand />
         <div className="flex items-center gap-2">
           {stock ? <StockChips hats={stock.hats} cups={stock.cups} /> : null}
@@ -33,11 +33,11 @@ export function AppShell({ children, stock, mode = 'game' }: AppShellProps) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 pb-4 pt-2 sm:px-6 sm:pb-6">
+      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 items-center justify-center px-4 pb-4 pt-2 sm:px-6 sm:pb-6">
         {children}
       </main>
 
-      <footer className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-3 text-center text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-muted/60 sm:px-6 sm:pb-4">
+      <footer className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-3 text-center text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-muted/60 sm:px-6 sm:pb-4">
         Las Camisetas de Luifa · Charata, Chaco
       </footer>
     </div>

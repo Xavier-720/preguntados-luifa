@@ -105,7 +105,7 @@ export function HomeScreen() {
             </span>
           </div>
 
-          <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+          <div className="mt-7 flex justify-center lg:justify-start">
             <Button
               size="xl"
               onClick={() => void startGame()}
@@ -114,10 +114,6 @@ export function HomeScreen() {
             >
               Jugar
             </Button>
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-              <Shirt className="size-4" aria-hidden="true" />
-              Premios del local
-            </span>
           </div>
 
           {noCategories ? (
@@ -144,9 +140,15 @@ export function HomeScreen() {
             width={420}
             height={560}
           />
-          <div className="relative mt-4 grid grid-cols-2 gap-3">
-            <PrizeMini kind="hat" label="Gorra" stock={config.stockHats} />
-            <PrizeMini kind="cup" label="Vaso" stock={config.stockCups} />
+          <div className="relative mt-4">
+            <p className="mb-2 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+              <Shirt className="size-4" aria-hidden="true" />
+              Premios del local
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <PrizeMini kind="hat" label="Gorra" stock={config.stockHats} />
+              <PrizeMini kind="cup" label="Vaso" stock={config.stockCups} />
+            </div>
           </div>
         </div>
       </div>

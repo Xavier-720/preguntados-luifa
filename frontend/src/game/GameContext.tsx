@@ -68,10 +68,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [pending, setPending] = useState<GameAction | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Los refs guardan la partida actual para que los handlers no dependan del render.
   const gameRef = useRef<StartGameResponse | null>(null)
   const roundRef = useRef<RoundResponse | null>(null)
   const answerRef = useRef<AnswerResponse | null>(null)
   const prizeRef = useRef<PrizeResponse | null>(null)
+  // Bloquea dobles clics incluso antes de que React actualice `pending`.
   const busyRef = useRef<GameAction | null>(null)
 
   const clearError = useCallback(() => setError(null), [])
@@ -138,6 +140,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const answerQuestion = useCallback(async (optionId: number | null) => {
     const currentGame = gameRef.current
     const currentRound = roundRef.current
+    // Si la ronda ya tiene respuesta, no volvemos a llamar a la API.
     if (!currentGame || !currentRound || answerRef.current || busyRef.current) {
       return
     }
@@ -213,6 +216,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setError(null)
 
     try {
+      // Mantenemos un mínimo de suspenso aunque la API responda al instante.
       const [response] = await Promise.all([
         api.drawPrize(currentGame.gameId),
         sleep(PRIZE_MIN_SUSPENSE),

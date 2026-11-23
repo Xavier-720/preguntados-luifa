@@ -24,6 +24,7 @@ public class QuestionBankSeeder {
 
     @Transactional
     public void seedIfEmpty() {
+        // Corre en cada arranque, pero solo carga datos si la base está vacía.
         if (categoryRepository.count() > 0) {
             log.info("El banco de preguntas ya existe; no se vuelve a cargar.");
             return;

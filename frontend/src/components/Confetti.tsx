@@ -3,7 +3,6 @@ import { useReducedMotion } from '../lib/useReducedMotion'
 
 interface ConfettiProps {
   active: boolean
-  duration?: number
 }
 
 interface Particle {
@@ -19,8 +18,9 @@ interface Particle {
 }
 
 const COLORS = ['#ffd23f', '#3ddc84', '#eef5ec', '#ff7a59', '#c58cff', '#6cc4ee']
+const DURATION = 4200
 
-export function Confetti({ active, duration = 4200 }: ConfettiProps) {
+export function Confetti({ active }: ConfettiProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const reducedMotion = useReducedMotion()
 
@@ -77,7 +77,7 @@ export function Confetti({ active, duration = 4200 }: ConfettiProps) {
         particle.x += particle.vx
         particle.y += particle.vy
         particle.rotation += particle.spin
-        particle.life = Math.max(0, 1 - elapsed / duration)
+        particle.life = Math.max(0, 1 - elapsed / DURATION)
 
         context.save()
         context.globalAlpha = particle.life
@@ -97,14 +97,14 @@ export function Confetti({ active, duration = 4200 }: ConfettiProps) {
     const timeout = window.setTimeout(() => {
       window.cancelAnimationFrame(frame)
       context.clearRect(0, 0, width, height)
-    }, duration)
+    }, DURATION)
 
     return () => {
       window.cancelAnimationFrame(frame)
       window.clearTimeout(timeout)
       context.clearRect(0, 0, width, height)
     }
-  }, [active, duration, reducedMotion])
+  }, [active, reducedMotion])
 
   if (!active) {
     return null

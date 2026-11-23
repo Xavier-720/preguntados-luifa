@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GameService {
 
     private static final int SETTINGS_ID = 1;
+    // Margen para que una respuesta enviada justo al vencer no se pierda por latencia.
     private static final Duration ANSWER_GRACE = Duration.ofSeconds(2);
 
     private final GameSessionRepository sessionRepository;
@@ -85,6 +86,7 @@ public class GameService {
             throw noQuestions();
         }
 
+        // La sesión guarda una foto de las reglas; si cambian, la partida en curso no se altera.
         GameSession session = new GameSession(
                 UUID.randomUUID(),
                 settings.getTotalRounds(),
@@ -115,10 +117,12 @@ public class GameService {
 
         Optional<GameRound> pendingRound =
                 roundRepository.findFirstByGameSessionIdAndAnsweredFalseOrderByRoundNumberAsc(gameId);
+        // Si quedó una ronda sin responder, la devolvemos tal cual para no crear otra.
         if (pendingRound.isPresent()) {
             return toRoundResponse(pendingRound.get(), session);
         }
 
+        // La categoría y la pregunta las elige siempre el servidor.
         List<Category> categories = categoryRepository.findAllWithActiveQuestions();
         if (categories.isEmpty()) {
             throw noQuestions();
@@ -131,6 +135,7 @@ public class GameService {
         }
 
         Set<Long> usedQuestionIds = new HashSet<>(roundRepository.findQuestionIdsByGameSessionId(gameId));
+        // Evitamos repetir preguntas dentro de la misma partida; si no alcanzan, se permite repetir.
         List<Question> availableQuestions = questions.stream()
                 .filter(question -> !usedQuestionIds.contains(question.getId()))
                 .toList();
@@ -160,6 +165,7 @@ public class GameService {
                         ApiErrorCode.ROUND_NOT_FOUND,
                         "No encontramos la ronda indicada."));
 
+        // Responder dos veces devuelve lo mismo y no vuelve a sumar aciertos.
         if (round.isAnswered()) {
             return toAnswerResponse(round, session);
         }
@@ -168,6 +174,7 @@ public class GameService {
         }
 
         Instant now = Instant.now(clock);
+        // Sin respuesta, o fuera del margen de gracia, la ronda cuenta como timeout.
         boolean timedOut = optionId == null
                 || round.isExpired(session.getQuestionSeconds(), now, ANSWER_GRACE);
 
@@ -193,6 +200,7 @@ public class GameService {
     @Transactional
     public FinishResponse finish(UUID gameId) {
         GameSession session = lockSession(gameId);
+        // Solo se cierra cuando todas las rondas tienen respuesta.
         if (session.getStatus() == GameStatus.IN_PROGRESS) {
             if (!session.isComplete()) {
                 throw new ApiException(
@@ -223,6 +231,7 @@ public class GameService {
     public PrizeResponse drawPrize(UUID gameId) {
         GameSession session = lockSession(gameId);
 
+        // Reintentar el sorteo devuelve el mismo premio sin volver a descontar stock.
         if (session.getPrize() != null) {
             AppSettings current = settings();
             return new PrizeResponse(
@@ -243,6 +252,7 @@ public class GameService {
                     "La partida no tiene los aciertos necesarios para el premio.");
         }
 
+        // La fila de configuración también se bloquea: dos sorteos no pueden descontar la misma unidad.
         AppSettings settings = settingsForUpdate();
         if (!settings.hasStock()) {
             throw new ApiException(
@@ -263,6 +273,7 @@ public class GameService {
     }
 
     private RoundResponse toRoundResponse(GameRound round, GameSession session) {
+        // Mezclamos las opciones para que el orden no delate la respuesta correcta.
         List<QuestionOption> options = new ArrayList<>(round.getQuestion().getOptions());
         Collections.shuffle(options, random);
         List<OptionView> optionViews = options.stream()
@@ -302,6 +313,7 @@ public class GameService {
     }
 
     private GameSession lockSession(UUID gameId) {
+        // Bloqueo pesimista: evita respuestas o sorteos simultáneos sobre la misma partida.
         return sessionRepository.findByIdForUpdate(gameId)
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,

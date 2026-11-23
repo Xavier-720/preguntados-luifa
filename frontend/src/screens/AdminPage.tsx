@@ -23,6 +23,7 @@ import { LoadingState } from '../components/LoadingState'
 import { Stepper } from '../components/Stepper'
 import { CapIcon, CupIcon } from '../components/icons'
 
+// El PIN vive solo en sessionStorage: se borra al cerrar la pestaña.
 const STORAGE_KEY = 'luifa.admin.pin'
 
 function readStoredPin(): string | null {
@@ -197,7 +198,7 @@ export function AdminPage() {
                   setDraftPin(event.target.value.replace(/\D/g, ''))
                   setPinError(null)
                 }}
-                placeholder="••••"
+                placeholder="Ingresá el PIN"
                 aria-invalid={Boolean(pinError)}
                 aria-describedby={pinError ? 'pin-error' : undefined}
               />
@@ -276,7 +277,7 @@ export function AdminPage() {
               Reglas, stock y estadísticas de la tablet. Los cambios se aplican a la próxima partida.
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={logout}>
+          <Button variant="ghost" size="md" onClick={logout} className="whitespace-nowrap">
             <LogOut className="size-4" aria-hidden="true" />
             Cerrar sesión
           </Button>

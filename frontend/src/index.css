@@ -261,11 +261,6 @@
   opacity: 0.5;
 }
 
-.btn-sm {
-  padding: 0.6rem 1.1rem;
-  font-size: 1.05rem;
-}
-
 .btn-md {
   padding: 0.8rem 1.6rem;
   font-size: 1.35rem;
@@ -319,16 +314,6 @@
 .btn-ghost:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.06);
   color: var(--color-chalk);
-}
-
-.btn-danger {
-  border: 2px solid rgba(255, 90, 95, 0.4);
-  background: rgba(255, 90, 95, 0.12);
-  color: #ffc9ca;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background: rgba(255, 90, 95, 0.22);
 }
 
 .icon-btn {
@@ -585,8 +570,10 @@
 }
 
 .admin-input::placeholder {
-  color: rgba(157, 184, 168, 0.5);
-  letter-spacing: 0.1em;
+  color: rgba(157, 184, 168, 0.55);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .admin-input:focus {
@@ -673,24 +660,6 @@
   animation: pulse-soft 1.8s ease-in-out infinite;
 }
 
-.animate-shake {
-  animation: shake 380ms ease-in-out both;
-}
-
-.animate-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.animate-shine::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
-  transform: translateX(-120%);
-  animation: shine 2.6s ease-in-out infinite;
-}
-
 @keyframes screen-in {
   from {
     opacity: 0;
@@ -734,32 +703,6 @@
   }
   50% {
     opacity: 0.45;
-  }
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-6px);
-  }
-  50% {
-    transform: translateX(5px);
-  }
-  75% {
-    transform: translateX(-3px);
-  }
-}
-
-@keyframes shine {
-  0% {
-    transform: translateX(-120%);
-  }
-  55%,
-  100% {
-    transform: translateX(120%);
   }
 }
 

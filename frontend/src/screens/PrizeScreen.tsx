@@ -23,6 +23,7 @@ export function PrizeScreen() {
   const [highlight, setHighlight] = useState(0)
 
   useEffect(() => {
+    // Pedimos el sorteo una sola vez al entrar; el ref evita el doble efecto de React.
     if (requestedRef.current || prize) {
       return
     }

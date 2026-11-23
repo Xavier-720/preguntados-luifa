@@ -28,6 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // El PIN alcanza para una tablet del local; para internet conviene una capa de auth real.
         registry.addInterceptor(adminPinInterceptor).addPathPatterns("/api/v1/admin/**");
     }
 }

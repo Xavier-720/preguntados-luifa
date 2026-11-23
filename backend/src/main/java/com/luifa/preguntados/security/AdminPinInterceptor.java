@@ -30,6 +30,7 @@ public class AdminPinInterceptor implements HandlerInterceptor {
 
         String provided = request.getHeader(HEADER);
         byte[] expected = properties.adminPin().getBytes(StandardCharsets.UTF_8);
+        // Comparamos en tiempo constante para no filtrar el PIN por la demora de respuesta.
         boolean valid = provided != null
                 && MessageDigest.isEqual(provided.getBytes(StandardCharsets.UTF_8), expected);
 

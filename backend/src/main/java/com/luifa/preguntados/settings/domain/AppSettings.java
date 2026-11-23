@@ -75,10 +75,6 @@ public class AppSettings {
         return stockHats + stockCups > 0;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
     public int getTotalRounds() {
         return totalRounds;
     }
