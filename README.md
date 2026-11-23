@@ -223,7 +223,7 @@ El repositorio incluye **14 tests de backend** y **18 tests de frontend**. La CI
 
 | Variable | Default | Descripción |
 | --- | --- | --- |
-| `VITE_API_URL` | `/api/v1` | URL base de la API. En desarrollo se usa el proxy de Vite |
+| `VITE_API_URL` | `/api/v1` | URL base de la API. En Netlify, URL pública completa del backend terminada en `/api/v1` |
 
 ## Docker
 
@@ -275,11 +275,24 @@ El panel de administración queda en `http://192.168.0.50:8081/admin`. Como ngin
 
 ## Despliegue
 
-**Opción A — frontend estático + backend gestionado**
+**Opción A — Netlify (frontend) + backend gestionado**
 
-1. Subí `frontend/` a Vercel, Netlify o Cloudflare Pages con `VITE_API_URL=https://tu-api.ejemplo.com/api/v1`.
-2. Desplegá `backend/` en Railway, Render, Fly.io o cualquier host con Java 25 y PostgreSQL.
-3. Configurá `SPRING_PROFILES_ACTIVE=postgres`, las credenciales de la base, `ADMIN_PIN` y `CORS_ALLOWED_ORIGINS=https://tu-frontend.ejemplo.com`.
+Netlify hospeda la SPA; el backend Spring Boot tiene que correr en Render, Railway, Fly.io o un VPS con Java 25 y PostgreSQL.
+
+1. Importá `Xavier-720/preguntados-luifa` en Netlify y usá estos valores:
+
+   | Campo | Valor |
+   | --- | --- |
+   | Base directory | `frontend` |
+   | Build command | `npm run build` |
+   | Publish directory | `dist` |
+   | Node version | `24` |
+
+   El `netlify.toml` de la raíz ya define la base, Node 24 y el fallback de React Router para que `/admin` y las demás rutas no den 404 al recargar.
+
+2. En **Environment variables** agregá `VITE_API_URL=https://tu-backend.ejemplo.com/api/v1`. Vite la inyecta en tiempo de build: si la cambiás, volvé a desplegar.
+
+3. Desplegá `backend/` con su Dockerfile y configurá `SPRING_PROFILES_ACTIVE=postgres`, las credenciales de la base, `ADMIN_PIN` y `CORS_ALLOWED_ORIGINS=https://tu-sitio.netlify.app` (sin barra final; agregá tu dominio propio separado por coma).
 
 **Opción B — un solo servidor con Docker Compose**
 
