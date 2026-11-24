@@ -1,4 +1,4 @@
-# Netlify: el frontend vive en /frontend y habla con la API por VITE_API_URL.
+# Netlify sirve la SPA y ejecuta la API serverless bajo /api/v1.
 [build]
   base = "frontend"
   command = "npm run build"
@@ -7,8 +7,12 @@
 [build.environment]
   NODE_VERSION = "24"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # React Router resuelve /admin y el resto de las rutas en el cliente.
-# VITE_API_URL debe apuntar al backend público: /api no se proxya desde acá.
+# Las funciones con config.path se resuelven antes que este fallback.
 [[redirects]]
   from = "/*"
   to = "/index.html"

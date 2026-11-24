@@ -32,6 +32,9 @@ frontend/.env.*
 .env.*
 !.env.example
 
+# Netlify CLI
+.netlify/
+
 # Artefactos temporales
 *.tmp
 *.bak

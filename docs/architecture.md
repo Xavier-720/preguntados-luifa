@@ -37,6 +37,17 @@ flowchart LR
 
 En desarrollo, Vite hace de servidor y proxya `/api` a `localhost:8080`. En Docker, nginx sirve los archivos estáticos y proxya `/api` al contenedor `backend`, de modo que el navegador trabaja siempre contra un único origen y no hay problemas de CORS. Además, nginx elimina el header `Origin` en las llamadas a `/api`, así que el juego funciona igual entrando por `localhost`, por `127.0.0.1` o por la IP de la tablet en la red local.
 
+### 2.1 Variante Netlify
+
+Netlify no ejecuta Java. La SPA se publica como sitio estático y una Function v2 con `path: "/api/*"` implementa los mismos endpoints y contratos. El estado vive en un único documento JSON dentro de **Netlify Blobs**, con consistencia fuerte y escrituras condicionales por ETag:
+
+```text
+Request concurrente A ──▶ lee estado + ETag ──▶ set onlyIfMatch(ETag) ──▶ OK
+Request concurrente B ──▶ lee estado + ETag ──▶ set onlyIfMatch(ETag) ──▶ modified: false ──▶ reintenta
+```
+
+Ese compare-and-swap protege las respuestas idempotentes, el stock y el sorteo sin depender de transacciones de base de datos. El store de producción se llama `preguntados`; los preview y branch deploys usan un sufijo por contexto para no mezclar datos. La Function recibe `ADMIN_PIN`, `APP_TIMEZONE` y `BLOBS_STORE_NAME` como variables de entorno.
+
 ## 3. Backend
 
 ### 3.1 Organización por dominio
@@ -280,21 +291,22 @@ home → wheel → question → result → prize
 | --- | --- | --- |
 | Backend | JUnit 5 + MockMvc + `@SpringBootTest` | Flujo ganador y perdedor, timeout, idempotencia, opción inválida, stock agotado, PIN, settings y estadísticas |
 | Backend | JUnit 5 | Sorteo ponderado con `Random` determinista |
+| API serverless | Vitest | Configuración, partida completa, timeout, idempotencia, stock, PIN y validaciones |
 | Frontend | Vitest | Cálculo de ángulos y selección de categoría de la ruleta |
 | Frontend | Testing Library | Render de componentes y estados principales |
 | CI | GitHub Actions | `mvn verify`, lint, tests, build y build de imágenes Docker |
 
 ## 7. Operación
 
-- **Health check:** `GET /actuator/health` (expuesto sin detalles).
-- **Logs:** Spring Boot escribe en consola; en Docker se consultan con `docker compose logs -f backend`.
-- **Backups:** el volumen `postgres-data` contiene toda la información. En producción, programar `pg_dump` periódico.
-- **Escalado:** la API es stateless a nivel HTTP y puede correr con varias instancias contra PostgreSQL. H2 en archivo está pensado para una sola instancia.
+- **Health check:** `GET /actuator/health` (expuesto sin detalles) en Spring Boot.
+- **Logs:** Spring Boot escribe en consola; en Docker se consultan con `docker compose logs -f backend`. En Netlify, los logs de la Function están en **Functions → api**.
+- **Backups:** el volumen `postgres-data` contiene toda la información. En producción, programar `pg_dump` periódico. En Netlify, el store de Blobs es la fuente de verdad.
+- **Escalado:** la API Spring Boot es stateless a nivel HTTP y puede correr con varias instancias contra PostgreSQL. H2 en archivo está pensado para una sola instancia. La Function de Netlify escala horizontalmente y coordina por ETag.
 - **Datos de demo:** el seeding es idempotente; si ya hay preguntas, no vuelve a cargarlas. Borrar `backend/data/` o el volumen de PostgreSQL reinicia todo a los valores por defecto.
+- **Limpieza:** al iniciar una partida se descartan las sesiones finalizadas de más de 30 días y las activas de más de 3 días. Las estadísticas totales se mantienen en contadores separados.
 
 ### Límites conocidos
 
 - No hay cuentas de jugador ni ranking histórico; cada partida es anónima.
-- Si el jugador recarga la página, el frontend pierde la sesión en curso (el backend conserva la partida, pero no hay endpoint para retomarla).
-- No hay tarea programada de limpieza de sesiones antiguas; para un local con mucho volumen conviene agregarla.
+- Si el jugador recarga la página, el frontend pierde la sesión en curso (la API conserva la partida, pero no hay endpoint para retomarla).
 - El PIN es una barrera operativa, no autenticación fuerte.

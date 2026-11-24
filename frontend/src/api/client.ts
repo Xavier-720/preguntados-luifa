@@ -11,7 +11,7 @@ import type {
   UpdateSettingsRequest,
 } from './types'
 
-// En desarrollo y en Docker la API se sirve bajo el mismo origen, detrás del proxy.
+// En desarrollo, Docker y Netlify la API se sirve bajo el mismo origen.
 const API_BASE = (import.meta.env.VITE_API_URL ?? '/api/v1').replace(/\/$/, '')
 
 export class ApiError extends Error {
@@ -59,7 +59,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     throw new ApiError(
       0,
       'NETWORK_ERROR',
-      'No pudimos conectar con el servidor. Revisá que el backend esté funcionando.',
+      'No pudimos conectar con el servidor. Revisá tu conexión e intentá nuevamente.',
     )
   }
 
